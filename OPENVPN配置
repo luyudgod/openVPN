@@ -1,0 +1,31 @@
+环境介绍 
+os：center8
+首先先下载 openvpn easy-rsa iptables-services
+easy-rsa 是证书创建程序
+iptables-services 是代理转发程序
+下载方式可选用yum和编译安装
+此处选用 yum 因为较为简单 第一步一般为 更换yum的源地址 受限于墙的因素，所以更换。
+yum -y install openvpn easy-rsa iptables-services
+下载完毕后，配置证书，将easy-rsa的证书复制到 openvpn下
+修改easy-rsa的vars-example的配置中的个人信息。
+初始化 ./easyrsa init-pki
+创建根证书 ./easyrsa build-ca nopass
+创建server证书和私钥 ./easyrsa gen-req server nopass
+给server端证书签名 ./easyrsa sign server server
+创建dh密钥交换算法 ./esayrsa gen-dh
+创建tls认证密钥 openvpn --genkey --secret ta.key
+拷贝证书到openvpn的cets下 mkdir /etc/openvpn/cets
+cp ./pki/ca.crt /etc/openvpn/certs/
+
+cp ./pki/dh.pem /etc/openvpn/certs/
+
+cp ./pki/issued/server.crt /etc/openvpn/certs
+
+cp ./pki/private/server.key /etc/openvpn/certs
+
+cp ta.key /etc/openvpn/certs
+至此证书相关的就配置完成了
+
+下一步则是 创建并修改 sever.conf 服务端的配置文件
+
+cp /usr/share/doc/openvpn/sample/sample-config-files/server.conf /etc/openvpn/
